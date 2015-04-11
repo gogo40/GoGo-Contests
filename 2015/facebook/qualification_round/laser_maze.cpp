@@ -34,6 +34,19 @@ int main()
     int T;
     cin >> T;
 
+    static char f[666];
+
+    f['^'] = '>';
+    f['>'] = 'v';
+    f['v'] = '<';
+    f['<'] = '^';
+    f['.'] = '.';
+    f['S'] = 'S';
+    f['G'] = 'G';
+    f['#'] = '#';
+
+    static int dx[] = {-1,  0,  1, 0};
+    static int dy[] = { 0, -1,  0, 1};
 
     for (int case_ = 1; case_ <= T; ++case_) {
 
@@ -53,9 +66,9 @@ int main()
 
         //rotaciona o maze
         for (int r = 1; r < 4; ++r) {
-            mazes[r].resize(M);
             for (int i = 0; i < M; ++i) {
-                 mazes[r][i].resize(N);
+                mazes[r].push_back("");
+                mazes[r][i].resize(N);
                 for (int j = 0; j < N; ++j) {
                     mazes[r][i][j] = f[mazes[r-1][i][j]];
 
@@ -70,19 +83,31 @@ int main()
             for (int i = 0; i < M; ++i) {
                 for (int j = 0; j < N; ++j) {
                     if (mazes[r][i][j] == '<') {
-                        for (int k = 0; k < j; ++k) mazes[r][i][k] = '#';
+                        for (int k = j - 1; k > -1; --k) {
+                            if (!(mazes[r][i][k] == '.'  or  mazes[r][i][k] == 'S' or mazes[r][i][k] == 'G')) break; 
+                            mazes[r][i][k] = '#';
+                        }
                     }
 
                     if (mazes[r][i][j] == '^') {
-                        for (int k = 0; k < i; ++k) mazes[r][k][j] = '#';
+                        for (int k = i - 1; k > -1; --k) {
+                            if (!(mazes[r][k][j] == '.' or  mazes[r][k][j] == 'S' or mazes[r][k][j] == 'G')) break;
+                            mazes[r][k][j] = '#';
+                        }
                     }
 
                     if (mazes[r][i][j] == '>') {
-                        for (int k = j + 1; k < N; ++k) mazes[r][i][k] = '#';
+                        for (int k = j + 1; k < N; ++k) {
+                            if (!(mazes[r][i][k] == '.' or  mazes[r][i][k] == 'S' or mazes[r][i][k] == 'G')) break;
+                            mazes[r][i][k] = '#';
+                        }
                     }
 
                      if (mazes[r][i][j] == 'v') {
-                        for (int k = i + 1; k < M; ++k) mazes[r][k][j] = '#';
+                        for (int k = i + 1; k < M; ++k) {
+                            if (!(mazes[r][k][j] == '.' or  mazes[r][k][j] == 'S' or mazes[r][k][j] == 'G')) break;
+                            mazes[r][k][j] = '#';
+                        }
                     }
                 }
             }

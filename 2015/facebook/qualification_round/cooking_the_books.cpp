@@ -26,7 +26,7 @@ int main()
         int pi;
         for (pi = 1; pi < n.size() and n[pi] == n[0]; ++pi);
         int p = pi - 1;
-        for (int i  = pi; i < n.size(); ++i) {
+        for (int i  = 0; i < n.size(); ++i) {
             if (n[i] <= c_min and n[i] != '0') {
                 p_min = i;
                 c_min = n[i];
