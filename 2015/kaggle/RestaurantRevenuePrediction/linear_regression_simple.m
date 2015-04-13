@@ -1,7 +1,5 @@
-#%
-#%VERSION 1: Using a simple linear regression using ALL data
-#%
 
+echo off
 trainXALL = [
 4	5	4	4	2	2	5	4	5	5	3	5	5	1	2	2	2	4	5	4	1	3	3	1	1	1	4	2	3	5	3	4	5	5	4	3	4
 4	5	4	4	1	2	5	5	5	5	1	5	5	0	0	0	0	0	3	2	1	3	2	0	0	0	0	3	3	0	0	0	0	0	0	0	0
@@ -284,34 +282,57 @@ trainYALL = [
 
 
 
-w = inv(trainXALL' * trainXALL) * trainXALL' * trainYALL
+w = (trainXALL' * trainXALL) \ (trainXALL' * trainYALL);
 
 data = csvread('test_filtered.csv');
 
 r = data * w;
-nc = size(r, 1);
-nc
-r = [linspace(0, nc-1, nc)', r];
+nr = size(r, 1);
+r = [linspace(0, nr-1, nr)', r];
 
-csvwrite('result.csv', r);
+csvwrite('result_simple.csv', r);
 
 
-#%distance data to training dataset
-ndata = size(data,1)
-ntrain = size(trainXALL, 1)
+% training
+ndata = size(data,1);
+ntrain = size(trainXALL, 1);
 
-nc = size(trainXALL, 2)
+nc = size(trainXALL, 2);
 
-d = zeros(ndata, ntrain);
-for j = 1 : ndata
-	if mod(j, 1000) == 0
-		printf('Computando distancias para o dado %d\n', j);
-	end
-	
-	for i = 1 : ntrain
-		d(j, i) = sqrt((data(j, :) - trainXALL(i, :))* (data(j, :) - trainXALL(i, :))');
-	end
+dt = zeros(ntrain, ntrain);
+for i = 1:ntrain
+    for j =1:ntrain
+        dt(i, j) = sum((trainXALL(i, :) - trainXALL(j, :)) .^ 2) + 0.1 * rand(1); 
+    end
 end
 
-d
+
+eps = 1;
+A = exp(- eps * dt);
+
+w = A \ trainYALL;
+
+d = zeros(ndata, ntrain);
+P = zeros(ndata, nc);
+
+% estimate
+for i = 1 : ndata
+    if mod(i, 10000) == 0
+        i
+    end
+
+    P(i, :) = data(i, :);
+   
+    for j = 1 : ntrain
+        d(i, j) = sum((data(i, :) - trainXALL(j, :)) .^ 2) + 0.1 * rand(1);
+    end;
+end
+
+B = exp(- eps * d);
+
+res_rbf = B * w;
+
+res_rbf = [linspace(0, nr-1, nr)', res_rbf];
+
+csvwrite('result_rbf_simple.csv', res_rbf);
 
